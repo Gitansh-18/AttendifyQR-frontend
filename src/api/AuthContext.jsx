@@ -1,25 +1,31 @@
-import axios from 'axios';
+import { createContext, useContext, useState } from 'react';
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-});
+const AuthContext = createContext();
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+export const AuthProvider = ({ children }) => {
+  const [teacher, setTeacher] = useState(
+    JSON.parse(localStorage.getItem('teacher'))
+  );
 
-api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('teacher');
-      window.location.href = '/login';
-    }
-    return Promise.reject(err);
-  }
-);
+  const login = (data) => {
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('teacher', JSON.stringify(data.teacher));
+    setTeacher(data.teacher);
+  };
 
-export default api;
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('teacher');
+    setTeacher(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ teacher, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
