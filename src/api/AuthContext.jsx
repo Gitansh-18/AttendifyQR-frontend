@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react';
+import api from './axios';
 
 const AuthContext = createContext();
 
@@ -7,10 +8,15 @@ export const AuthProvider = ({ children }) => {
     JSON.parse(localStorage.getItem('teacher'))
   );
 
-  const login = (data) => {
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('teacher', JSON.stringify(data.teacher));
-    setTeacher(data.teacher);
+  const login = async (email, password) => {
+    const res = await api.post('/auth/login', { email, password });
+
+    const { token, teacher } = res.data;
+
+    localStorage.setItem('token', token);
+    localStorage.setItem('teacher', JSON.stringify(teacher));
+
+    setTeacher(teacher);
   };
 
   const logout = () => {
