@@ -58,9 +58,23 @@ export default function SessionPage() {
     }
   };
 
-  const handleExport = () => {
-    const token = localStorage.getItem('token');
-    window.open(`/api/sessions/${id}/attendance/export`, '_blank');
+  const handleExport = async () => {
+  try {
+    const response = await api.get(
+      `/sessions/${id}/attendance/export`,
+      { responseType: 'blob' }
+    );
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'attendance.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (err) {
+    alert('Export failed');
+  }
   };
 
   useEffect(() => {
