@@ -19,6 +19,18 @@ export const AuthProvider = ({ children }) => {
     setTeacher(teacher);
   };
 
+  const signup = async (name, email, password) => {
+    const res = await api.post('/api/auth/signup', { name, email, password });
+
+    const { token } = res.data;
+    const teacher = res.data.teacher ?? res.data.user;
+
+    localStorage.setItem('token', token);
+    localStorage.setItem('teacher', JSON.stringify(teacher));
+
+    setTeacher(teacher);
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('teacher');
@@ -26,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ teacher, login, logout }}>
+    <AuthContext.Provider value={{ teacher, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
