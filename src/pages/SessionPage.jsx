@@ -18,9 +18,10 @@ export default function SessionPage() {
   const intervalRef = useRef(null);
   const countdownRef = useRef(null);
 
+  // ✅ FIXED: added /api
   const fetchQR = useCallback(async () => {
     try {
-      const { data } = await api.get(`/sessions/${id}/qr`);
+      const { data } = await api.get(`/api/sessions/${id}/qr`);
       setQrImage(data.data.qrImage);
       setRemainingMs(data.data.remainingMs);
       setLoading(false);
@@ -37,18 +38,20 @@ export default function SessionPage() {
     }
   }, [id]);
 
+  // ✅ FIXED: added /api
   const fetchAttendance = useCallback(async () => {
     try {
-      const { data } = await api.get(`/sessions/${id}/attendance`);
+      const { data } = await api.get(`/api/sessions/${id}/attendance`);
       setAttendance(data.data);
     } catch {
       // silent
     }
   }, [id]);
 
+  // ✅ FIXED: added /api
   const handleEndSession = async () => {
     try {
-      await api.put(`/sessions/${id}/end`);
+      await api.put(`/api/sessions/${id}/end`);
       setSessionExpired(true);
       clearInterval(intervalRef.current);
       clearInterval(countdownRef.current);
@@ -58,30 +61,30 @@ export default function SessionPage() {
     }
   };
 
+  // ✅ FIXED: added /api
   const handleExport = async () => {
-  try {
-    const response = await api.get(
-      `/sessions/${id}/attendance/export`,
-      { responseType: 'blob' }
-    );
+    try {
+      const response = await api.get(
+        `/api/sessions/${id}/attendance/export`,
+        { responseType: 'blob' }
+      );
 
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'attendance.xlsx');
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  } catch (err) {
-    alert('Export failed');
-  }
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'attendance.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch {
+      alert('Export failed');
+    }
   };
 
   useEffect(() => {
     fetchQR();
     intervalRef.current = setInterval(fetchQR, QR_REFRESH_MS);
 
-    // Countdown tick every second
     countdownRef.current = setInterval(() => {
       setRemainingMs((prev) => {
         const next = prev - 1000;
@@ -95,7 +98,6 @@ export default function SessionPage() {
       });
     }, 1000);
 
-    // Also poll attendance every 5 seconds
     const attInterval = setInterval(fetchAttendance, 5000);
 
     return () => {
@@ -121,7 +123,9 @@ export default function SessionPage() {
 
       <div className="max-w-3xl mx-auto p-6 space-y-6">
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">{error}</div>
+          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+            {error}
+          </div>
         )}
 
         {!sessionExpired ? (
@@ -132,7 +136,9 @@ export default function SessionPage() {
             <p className="text-sm text-gray-400 mb-4">
               QR refreshes every 4 seconds • Session expires in{' '}
               <span
-                className={`font-bold ${seconds <= 10 ? 'text-red-500' : 'text-indigo-600'}`}
+                className={`font-bold ${
+                  seconds <= 10 ? 'text-red-500' : 'text-indigo-600'
+                }`}
               >
                 {seconds}s
               </span>
@@ -150,7 +156,6 @@ export default function SessionPage() {
               />
             )}
 
-            {/* Progress bar */}
             <div className="mt-4 h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className="h-full bg-indigo-500 transition-all duration-1000"
@@ -173,7 +178,6 @@ export default function SessionPage() {
           </div>
         )}
 
-        {/* Live attendance list */}
         <div className="bg-white rounded-2xl shadow p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold text-gray-800">

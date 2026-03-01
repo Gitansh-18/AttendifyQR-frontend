@@ -12,9 +12,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // ✅ FIXED: Added /api prefix
   const fetchClasses = async () => {
     try {
-      const { data } = await api.get('/classes');
+      const { data } = await api.get('/api/classes');
       setClasses(data.data);
     } catch {
       setError('Failed to load classes.');
@@ -25,11 +26,12 @@ export default function Dashboard() {
     fetchClasses();
   }, []);
 
+  // ✅ FIXED
   const handleCreateClass = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      await api.post('/classes', form);
+      await api.post('/api/classes', form);
       setForm({ name: '', subject: '' });
       fetchClasses();
     } catch (err) {
@@ -37,20 +39,22 @@ export default function Dashboard() {
     }
   };
 
+  // ✅ FIXED
   const handleDelete = async (id) => {
     if (!confirm('Delete this class?')) return;
     try {
-      await api.delete(`/classes/${id}`);
+      await api.delete(`/api/classes/${id}`);
       fetchClasses();
     } catch {
       setError('Failed to delete class.');
     }
   };
 
+  // ✅ FIXED
   const handleStartSession = async (classId) => {
     setLoading(true);
     try {
-      const { data } = await api.post('/sessions/start', { classId });
+      const { data } = await api.post('/api/sessions/start', { classId });
       navigate(`/session/${data.data.sessionId}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to start session.');
@@ -77,12 +81,16 @@ export default function Dashboard() {
 
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">{error}</div>
+          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+            {error}
+          </div>
         )}
 
         {/* Create Class */}
         <div className="bg-white rounded-2xl shadow p-6">
-          <h2 className="text-lg font-bold mb-4 text-gray-800">➕ Create New Class</h2>
+          <h2 className="text-lg font-bold mb-4 text-gray-800">
+            ➕ Create New Class
+          </h2>
           <form onSubmit={handleCreateClass} className="flex gap-3 flex-wrap">
             <input
               type="text"
@@ -111,9 +119,13 @@ export default function Dashboard() {
 
         {/* Classes List */}
         <div className="bg-white rounded-2xl shadow p-6">
-          <h2 className="text-lg font-bold mb-4 text-gray-800">📚 My Classes</h2>
+          <h2 className="text-lg font-bold mb-4 text-gray-800">
+            📚 My Classes
+          </h2>
           {classes.length === 0 ? (
-            <p className="text-gray-400 text-sm">No classes yet. Create one above.</p>
+            <p className="text-gray-400 text-sm">
+              No classes yet. Create one above.
+            </p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               {classes.map((cls) => (
@@ -122,8 +134,12 @@ export default function Dashboard() {
                   className="border border-gray-200 rounded-xl p-4 flex flex-col gap-3"
                 >
                   <div>
-                    <h3 className="font-semibold text-gray-800">{cls.name}</h3>
-                    <p className="text-sm text-gray-500">{cls.subject}</p>
+                    <h3 className="font-semibold text-gray-800">
+                      {cls.name}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {cls.subject}
+                    </p>
                   </div>
                   <div className="flex gap-2">
                     <button

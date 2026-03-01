@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   );
 
   const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
+    const res = await api.post('/api/auth/login', { email, password });
 
     const { token, teacher } = res.data;
 
