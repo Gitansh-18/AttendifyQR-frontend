@@ -25,7 +25,7 @@ export default function MarkAttendance() {
     }
 
     try {
-      const { data } = await api.post('/attendance/mark', form);
+      const { data } = await api.post('/api/attendance/mark', form);
       setStatus('success');
       setMessage(data.message);
     } catch (err) {
